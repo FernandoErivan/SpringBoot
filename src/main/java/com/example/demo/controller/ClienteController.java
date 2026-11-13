@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dto.ClienteResponse;
 import com.example.demo.model.ClienteModel;
 import com.example.demo.service.ClienteService;
 
@@ -27,8 +28,14 @@ public class ClienteController {
     private final ClienteService clienteService;
 
     @PostMapping("/novoCliente")
-    public ClienteModel novoCliente(@RequestBody ClienteModel cliente) throws Exception {        
-        return clienteService.createCliente(cliente);
+    public ClienteResponse novoCliente(@RequestBody ClienteModel cliente) throws Exception {    
+        ClienteModel clienteNovo = new ClienteModel();
+        clienteNovo.setPassword(cliente.getPassword());  
+        clienteNovo.setUsername(cliente.getUsername());
+        
+        ClienteModel clienteSalvo = clienteService.createCliente(clienteNovo);
+   
+        return ClienteResponse.from(clienteSalvo);
     }
 
     @PostMapping("/novosClientes")
