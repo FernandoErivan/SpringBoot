@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo.dto.PedidoRequest;
 import com.example.demo.model.PedidoModel;
 import com.example.demo.service.PedidoService;
 
@@ -22,12 +23,11 @@ public class PedidoController {
 
     @PostMapping
     public ResponseEntity<PedidoModel> criarPedido(
-            @RequestBody CriarPedidoRequest request) {
+            @RequestBody PedidoRequest request) {
 
         PedidoModel pedido = pedidoService.criarPedido(
-            request.getClienteId(),
-            request.getProdutosIds()
-        );
+                request.getClienteid(),
+                request.getProdutosIds());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(pedido);
     }
@@ -48,10 +48,4 @@ public class PedidoController {
         return ResponseEntity.noContent().build();
     }
 
-    @Getter
-    @Setter
-    public static class CriarPedidoRequest {
-        private Long clienteId;
-        private List<Long> produtosIds;
-    }
 }

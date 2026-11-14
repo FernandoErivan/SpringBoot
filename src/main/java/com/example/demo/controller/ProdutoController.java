@@ -3,68 +3,42 @@ package com.example.demo.controller;
 import com.example.demo.service.ProdutoService;
 
 import com.example.demo.model.ProdutoModel;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/loja")
-@RequiredArgsConstructor 
+@RequiredArgsConstructor
 public class ProdutoController {
 
     private final ProdutoService produtoService;
 
     @PostMapping("/newProduto")
-    public ResponseEntity<ProdutoModel> criarProduto(
-            @Valid @RequestBody ProdutoModel produto) {
-
-        ProdutoModel produtoSalvo = produtoService.createProduto(produto);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(produtoSalvo);
+    public ProdutoModel criarNovoProduto(@RequestBody ProdutoModel produto) {
+        return produtoService.createProduto(produto);
     }
 
     @GetMapping("/buscarProdutos")
-    public ResponseEntity<List<ProdutoModel>> listarProdutos() {
-
-        List<ProdutoModel> produtos = produtoService.listarProdutos();
-
-        return ResponseEntity.ok(produtos);
+    public List<ProdutoModel> listarProdutos() {
+        return produtoService.listarProdutos();
     }
 
     @GetMapping("/produto/{id}")
-    public ResponseEntity<ProdutoModel> buscarProdutoPorId(@PathVariable Long id) {
-
-        ProdutoModel produto = produtoService.buscarProdutoPorId(id);
-
-        return ResponseEntity.ok(produto);
+    public ProdutoModel produtoById(@PathVariable Long id) {
+        return produtoService.buscarProdutoPorId(id);
     }
 
     @PutMapping("/produto/{id}")
-    public ResponseEntity<ProdutoModel> atualizarProduto(@PathVariable Long id,
-            @Valid @RequestBody ProdutoModel produto) {
-
-        ProdutoModel produtoAtualizado = produtoService.atualizarProduto(id, produto);
-
-        return ResponseEntity.ok(produtoAtualizado);
+    public ProdutoModel atualizarProdutoPorId(@PathVariable Long id) {
+        return produtoService.atualizarProduto(id, null);
     }
 
     @DeleteMapping("/produto/{id}")
-    public ResponseEntity<Void> excluirProduto(@PathVariable Long id) {
+    public void excluirProdutoPorId(@PathVariable Long id) {
         produtoService.excluirProduto(id);
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<String> tratarProdutoNaoEncontrado(EntityNotFoundException exception) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
 }
