@@ -44,3 +44,26 @@ function fillSelect(sel, items, label) {
     ? items.map((i) => `<option value="${i.id}">${label(i)}</option>`).join("")
     : `<option value="">(nenhum)</option>`;
 }
+
+// ---------- Clientes ----------
+async function loadClientes() {
+  const clientes = await api("GET", "/api/v1/cliente/all");
+  $("tblClientes").innerHTML = clientes.map((c) => `
+    <tr><td>${c.id}</td><td>${esc(c.username)}</td>
+    <td><button onclick="excluirCliente(${c.id})">Excluir</button></td></tr>`).join("");
+  fillSelect($("selCliente"), clientes, (c) => `${esc(c.username)} (#${c.id})`);
+}
+
+async function excluirCliente(id) {
+  try { await api("DELETE", `/api/v1/cliente/cliente/${id}`); await reloadAll(); } catch {}
+}
+
+$("formCliente").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const f = e.target;
+  try {
+    await api("POST", "/api/v1/cliente/novoCliente", { id: 0, username: f.username.value, password: f.password.value });
+    f.reset();
+    await reloadAll();
+  } catch {}
+});
