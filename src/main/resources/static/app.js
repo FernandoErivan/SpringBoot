@@ -67,3 +67,52 @@ $("formCliente").addEventListener("submit", async (e) => {
     await reloadAll();
   } catch {}
 });
+
+// ---------- Produtos ----------
+async function loadProdutos() {
+  produtos = await api("GET", "/api/v1/produto/listarProdutos");
+  $("tblProdutos").innerHTML = produtos.map((p) => `
+    <tr><td>${p.id}</td><td>${esc(p.nome)}</td><td>${money(p.preco)}</td><td>${p.quantidade}</td>
+    <td><button onclick="editarProduto(${p.id})">Editar</button>
+        <button onclick="excluirProduto(${p.id})">Excluir</button></td></tr>`).join("");
+  $("chkProdutos").innerHTML = produtos.length
+    ? produtos.map((p) => `<label><input type="checkbox" value="${p.id}"> ${esc(p.nome)}</label>`).join("")
+    : "(cadastre produtos primeiro)";
+}
+
+function editarProduto(id) {
+  const p = produtos.find((x) => x.id === id);
+  const f = $("formProduto");
+  f.produtoId.value = p.id;
+  f.nome.value = p.nome;
+  f.preco.value = p.preco;
+  f.quantidade.value = p.quantidade;
+  $("btnProduto").textContent = `Salvar produto #${p.id}`;
+  $("btnCancelarEdicao").hidden = false;
+}
+
+function cancelarEdicao() {
+  $("formProduto").reset();
+  $("formProduto").produtoId.value = "";
+  $("btnProduto").textContent = "Criar produto";
+  $("btnCancelarEdicao").hidden = true;
+}
+
+async function excluirProduto(id) {
+  try { await api("DELETE", `/api/v1/produto/produto/${id}`); await reloadAll(); } catch {}
+}
+
+$("btnCancelarEdicao").addEventListener("click", cancelarEdicao);
+
+$("formProduto").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const f = e.target;
+  // id: 0 é necessário: o Jackson usa o construtor e falha com "null" no `long id`
+  const body = { id: 0, nome: f.nome.value, preco: Number(f.preco.value), quantidade: Number(f.quantidade.value) };
+  try {
+    if (f.produtoId.value) await api("PUT", `/api/v1/produto/produto/${f.produtoId.value}`, body);
+    else await api("POST", "/api/v1/produto/newProduto", body);
+    cancelarEdicao();
+    await reloadAll();
+  } catch {}
+});
